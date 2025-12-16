@@ -95,7 +95,7 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
   const [inputKey, setInputKey] = useState("");
   const [authError, setAuthError] = useState("");
 
-  const logsEndRef = useRef(null);
+  const logsEndRef = useRef<HTMLDivElement | null>(null);
   const selectedNode = selectedNodeId !== null ? nodes.find(n => n.id === selectedNodeId) : null;
 
   useEffect(() => {

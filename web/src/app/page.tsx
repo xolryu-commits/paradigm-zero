@@ -320,6 +320,15 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
                   <span className="hidden sm:inline">REBOOT</span>
               </button>
             )}
+          {isAdmin && (
+            <button
+                  onClick={saveToServer}
+                  className="flex items-center gap-2 text-xs font-mono px-3 py-1 rounded border transition-all cursor-pointer bg-emerald-950/50 border-emerald-800 text-emerald-300 hover:bg-emerald-900"
+             >
+                  <Save size={14} />
+                 <span className="hidden sm:inline">SAVE</span>
+           </button>
+            )}
             <button 
               onClick={() => { if (isAdmin) setIsAdmin(false); else setShowAuthModal(true); }}
               className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded border transition-all cursor-pointer ${isAdmin ? 'bg-red-600 text-white border-red-500 hover:bg-red-500' : 'bg-slate-800 border-slate-600 text-slate-400 hover:bg-slate-700'}`}

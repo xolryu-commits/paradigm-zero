@@ -376,6 +376,7 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
               {EDGES.map(([startId, endId], idx) => {
                 const startNode = nodes.find(n => n.id === startId);
                 const endNode = nodes.find(n => n.id === endId);
+                if (!startNode || !endNode) return null;
                 const isVisible = isAdmin || capturedNodes.includes(startId) || capturedNodes.includes(endId);
                 const isPathActive = capturedNodes.includes(startId) && capturedNodes.includes(endId);
                 if (!isVisible) return null;

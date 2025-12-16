@@ -69,7 +69,7 @@ const EDGES = [
 const ADMIN_KEY = "1217"; 
 
 // --- 메인 게임 로직 ---
-function GameContent({ onReboot }) {
+function GameContent({ onReboot }: { onReboot: () => void }) {
   const [nodes, setNodes] = useState(GET_INITIAL_NODES());
   const [currentLocation, setCurrentLocation] = useState(0);
   const [capturedNodes, setCapturedNodes] = useState([0]);

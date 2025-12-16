@@ -106,26 +106,26 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
 
   // -- 로직 함수들 --
   const saveToServer = async () => {
-  if (!isAdmin || !adminSessionKey) return;
+   if (!isAdmin || !adminSessionKey) return;
 
-  const payload = { nodes, currentLocation, capturedNodes, day, logs };
+    const payload = { nodes, currentLocation, capturedNodes, day, logs };
 
-  const res = await fetch('/api/admin/state', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-admin-key': adminSessionKey,
-    },
-    body: JSON.stringify(payload),
-  });
+    const res = await fetch('/api/admin/state', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': adminSessionKey,
+      },
+      body: JSON.stringify(payload),
+    });
 
-  if (!res.ok) {
-    setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 실패 (SERVER ERROR)`]);
-    return;
-  }
+    if (!res.ok) {
+      setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 실패 (SERVER ERROR)`]);
+      return;
+    }
 
-  setLogs(prev => [...prev, `Day ${day}: [관리자] 공용 데이터 저장 완료 (SYNCED)`]);
-};
+    setLogs(prev => [...prev, `Day ${day}: [관리자] 공용 데이터 저장 완료 (SYNCED)`]);
+  };
   const isConnected = (from, to) => EDGES.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
   const getNodeStatus = (nodeId) => {

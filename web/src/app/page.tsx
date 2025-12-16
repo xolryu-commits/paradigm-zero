@@ -1,5 +1,6 @@
-'use client';
 // @ts-nocheck
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Terminal, EyeOff, Key, UserCheck, UserX, Edit3, Save, RotateCcw, CheckSquare, Square, RefreshCw, Calendar, ChevronLeft, ChevronRight, Power, Database, Plus, Trash2, X, PenTool } from 'lucide-react';
 

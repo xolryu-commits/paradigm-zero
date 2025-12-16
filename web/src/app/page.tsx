@@ -71,6 +71,7 @@ const ADMIN_KEY = "1217";
 
 // --- 메인 게임 로직 ---
 function GameContent({ onReboot }: { onReboot: () => void }) {
+  const [adminSessionKey, setAdminSessionKey] = useState<string | null>(null);
   const [nodes, setNodes] = useState(GET_INITIAL_NODES());
   const [currentLocation, setCurrentLocation] = useState(0);
   const [capturedNodes, setCapturedNodes] = useState([0]);
@@ -104,6 +105,27 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
   }, [logs]);
 
   // -- 로직 함수들 --
+  const saveToServer = async () => {
+  if (!isAdmin || !adminSessionKey) return;
+
+  const payload = { nodes, currentLocation, capturedNodes, day, logs };
+
+  const res = await fetch('/api/admin/state', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-key': adminSessionKey,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 실패 (SERVER ERROR)`]);
+    return;
+  }
+
+  setLogs(prev => [...prev, `Day ${day}: [관리자] 공용 데이터 저장 완료 (SYNCED)`]);
+};
   const isConnected = (from, to) => EDGES.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
   const getNodeStatus = (nodeId) => {
@@ -197,13 +219,14 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
   const handleAuthSubmit = (e) => {
     e.preventDefault();
     if (inputKey === ADMIN_KEY) {
-      setIsAdmin(true);
-      setShowAuthModal(false);
-      setInputKey("");
-      setAdminTab('map');
-    } else {
-      setAuthError("액세스 거부: 보안 코드가 일치하지 않습니다.");
-    }
+  setAdminSessionKey(inputKey);
+  setIsAdmin(true);
+  setShowAuthModal(false);
+  setInputKey("");
+  setAdminTab('map');
+} else {
+  setAuthError("액세스 거부: 보안 코드가 일치하지 않습니다.");
+}
   };
 
   const changeDay = (increment) => {

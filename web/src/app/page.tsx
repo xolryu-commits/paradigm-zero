@@ -106,25 +106,32 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
 
   // -- 로직 함수들 --
   const saveToServer = async () => {
-   if (!isAdmin || !adminSessionKey) return;
-
-    const payload = { nodes, currentLocation, capturedNodes, day, logs };
-
-    const res = await fetch('/api/admin/state', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-key': adminSessionKey,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 실패 (SERVER ERROR)`]);
+    if (!isAdmin || !adminSessionKey) {
+      setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 불가 (NO AUTH)`]);
       return;
-    }
+    } 
 
-    setLogs(prev => [...prev, `Day ${day}: [관리자] 공용 데이터 저장 완료 (SYNCED)`]);
+    try {
+      const payload = { nodes, currentLocation, capturedNodes, day, logs };
+
+      const res = await fetch('/api/admin/state', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminSessionKey,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 실패 (${res.status})`]);
+        return;
+      }
+
+      setLogs(prev => [...prev, `Day ${day}: [관리자] 공용 데이터 저장 완료 (SYNCED)`]);
+    } catch (err) {
+      setLogs(prev => [...prev, `Day ${day}: [관리자] 저장 중 오류 (API 없음/네트워크)`]);
+    }
   };
   const isConnected = (from, to) => EDGES.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
@@ -353,7 +360,15 @@ function GameContent({ onReboot }: { onReboot: () => void }) {
            </button>
             )}
             <button 
-              onClick={() => { if (isAdmin) setIsAdmin(false); else setShowAuthModal(true); }}
+              onClick={() => {
+                if (isAdmin) {
+                  setIsAdmin(false);
+                  setAdminSessionKey(null);
+                   setAuthError("");
+                } else {
+                  setShowAuthModal(true);
+                }
+              }}  
               className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded border transition-all cursor-pointer ${isAdmin ? 'bg-red-600 text-white border-red-500 hover:bg-red-500' : 'bg-slate-800 border-slate-600 text-slate-400 hover:bg-slate-700'}`}
             >
                 {isAdmin ? <RotateCcw size={14} /> : <Lock size={14} />}

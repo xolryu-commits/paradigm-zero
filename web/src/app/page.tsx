@@ -14,11 +14,6 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
 
-// Supabase 클라이언트 생성 (키가 있을 때만)
-const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY) 
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
-  : null;
-
 // --- 초기 데이터 정의 (도시 구조 및 노드 정보) ---
 const GET_INITIAL_NODES = () => [
   { id: 0, x: 50, y: 5, label: "북부 외곽 게이트", type: "start", desc: "도시로 진입하는 유일한 북쪽 통로입니다. 센서가 작동 중이지만 진입 가능합니다." },

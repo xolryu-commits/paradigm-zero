@@ -1,15 +1,22 @@
 // @ts-nocheck
 'use client';
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js'; // Supabase 라이브러리
 import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Terminal, Key, Edit3, Save, RotateCcw, CheckSquare, Square, RefreshCw, Calendar, ChevronLeft, ChevronRight, Power, Database, Plus, Trash2, X, Download, Cloud } from 'lucide-react';
 
-const SUPABASE_URL = "https://tqwxfyxtpdjwdhingtsf.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxd3hmeXh0cGRqd2RoaW5ndHNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MDMxODIsImV4cCI6MjA4MTQ3OTE4Mn0.qNJZsryo3VQX6X93qs--XLR4l1c5gW63sScYoOUIzzY";
+// ==============================================================================
+// [환경 변수 설정]
+// Vercel의 Environment Variables에 설정된 값을 불러옵니다.
+// ==============================================================================
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const ADMIN_KEY_ENV = process.env.NEXT_PUBLIC_ADMIN_KEY || "1217"; // 설정 없으면 기본값 1217
 // ==============================================================================
 
 // Supabase 클라이언트 생성
+// 환경 변수가 없으면 클라이언트가 생성되지 않도록 예외 처리
 const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('http')) 
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
@@ -44,8 +51,6 @@ const EDGES = [
   [7, 10], [7, 12], [8, 11], [8, 13], [10, 14], [10, 15],
   [11, 14], [12, 14], [16, 12], [18, 11], [13, 14], [13, 19], [14, 15]
 ];
-
-const ADMIN_KEY = "1217"; 
 
 export default function SFCitySiege() {
   const [adminSessionKey, setAdminSessionKey] = useState<string | null>(null);
@@ -115,7 +120,7 @@ export default function SFCitySiege() {
   // 2. 데이터 저장하기 (Supabase 직접 호출)
   const saveToSupabase = async () => {
     if (!supabase) {
-      alert("Supabase 키 설정을 확인해주세요 (환경변수).");
+      alert("Supabase 설정이 환경 변수에 있는지 확인해주세요.");
       return;
     }
     if (!isAdmin) {
@@ -224,7 +229,8 @@ export default function SFCitySiege() {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputKey === ADMIN_KEY) {
+    // 환경 변수에 설정된 관리자 키와 비교
+    if (inputKey === ADMIN_KEY_ENV) {
       setAdminSessionKey(inputKey);
       setIsAdmin(true);
       setShowAuthModal(false);

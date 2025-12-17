@@ -100,6 +100,7 @@ export default function SFCitySiege() {
         if (saved.day) setDay(saved.day);
         if (saved.logs) setLogs(saved.logs);
         if (!isAuto) setLogs(prev => [...prev, `[SYSTEM] 서버 데이터 동기화 완료`]);
+        if (!isAuto) alert("데이터 로드 완료!");
       }
     } catch (err: any) {
       console.error("Load Error:", err);
@@ -145,9 +146,8 @@ export default function SFCitySiege() {
     }
   };
 
-  // --- 기존 로직 (변경 없음) ---
+  // --- 기존 로직 ---
   const handleReboot = () => {
-    // 완전 초기화
     setNodes(GET_INITIAL_NODES());
     setCurrentLocation(0);
     setCapturedNodes([0]);

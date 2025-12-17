@@ -6,14 +6,17 @@ import { createClient } from '@supabase/supabase-js'; // Supabase 라이브러�
 import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Terminal, Key, Edit3, Save, RotateCcw, CheckSquare, Square, RefreshCw, Calendar, ChevronLeft, ChevronRight, Power, Database, Plus, Trash2, X, Download, Cloud } from 'lucide-react';
 
 // ==============================================================================
-// 👇 여기에 Supabase 키를 직접 입력하세요! (따옴표 "" 안에 붙여넣기)
+// [배포용 수정] 환경 변수에서 키를 가져오도록 변경했습니다.
+// Vercel 배포 시 'Settings' > 'Environment Variables'에 아래 이름으로 값을 등록해야 합니다.
+// 1. NEXT_PUBLIC_SUPABASE_URL
+// 2. NEXT_PUBLIC_SUPABASE_ANON_KEY
 // ==============================================================================
-const SUPABASE_URL = "https://tqwxfyxtpdjwdhingtsf.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxd3hmeXh0cGRqd2RoaW5ndHNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MDMxODIsImV4cCI6MjA4MTQ3OTE4Mn0.qNJZsryo3VQX6X93qs--XLR4l1c5gW63sScYoOUIzzY";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 // ==============================================================================
 
 // Supabase 클라이언트 생성 (키가 있을 때만)
-const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('http')) 
+const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY) 
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
 
@@ -79,7 +82,7 @@ export default function SFCitySiege() {
   // 1. 데이터 불러오기 (Supabase 직접 호출)
   const loadFromSupabase = async (isAuto = false) => {
     if (!supabase) {
-      if (!isAuto) alert("Supabase 키가 설정되지 않았습니다.");
+      if (!isAuto) console.warn("Supabase 환경 변수가 설정되지 않았습니다.");
       return;
     }
     setIsLoading(true);
@@ -118,7 +121,7 @@ export default function SFCitySiege() {
   // 2. 데이터 저장하기 (Supabase 직접 호출)
   const saveToSupabase = async () => {
     if (!supabase) {
-      alert("Supabase 키 설정을 확인해주세요.");
+      alert("Supabase 키 설정을 확인해주세요 (환경변수).");
       return;
     }
     if (!isAdmin) {

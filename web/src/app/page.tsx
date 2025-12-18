@@ -20,31 +20,31 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
 const GET_INITIAL_NODES = () => [
   { id: 0, x: 50, y: 10, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
   { id: 1, x: 30, y: 20, label: "제1 자동 방벽 제어소", type: "normal", desc: "북서쪽 방벽 제어 시설." },
-  { id: 2, x: 70, y: 20, label: "제2 자동 방벽 제어소", type: "normal", desc: "북동쪽 방벽 제어 시설." },
-  { id: 17, x: 10, y: 20, label: "드론 관제실", type: "deadend", desc: "경비 드론 관리 시설." },
+  { id: 2, x: 70, y: 25, label: "제2 자동 방벽 제어소", type: "normal", desc: "북동쪽 방벽 제어 시설." },
+  { id: 17, x: 90, y: 25, label: "드론 관제실", type: "deadend", desc: "경비 드론 관리 시설." },
   { id: 3, x: 20, y: 30, label: "산업 지구", type: "normal", desc: "자동화 공장 지대." },
   { id: 4, x: 50, y: 25, label: "신시 외곽 지대", type: "normal", desc: "시민 거주 구역." },
   { id: 5, x: 80, y: 30, label: "폐기물 처리장", type: "normal", desc: "폐기물 및 안드로이드 잔해 처리." },
   { id: 6, x: 10, y: 40, label: "군수용 물류터미널", type: "deadend", desc: "무기 보급 시설." },
   { id: 9, x: 90, y: 40, label: "방송 송출 센터", type: "deadend", desc: "미디어 통제 시설." },
-  { id: 16, x: 15, y: 50, label: "지하 수로", type: "normal", desc: "은밀한 침투 경로." },
+  { id: 16, x: 15, y: 47, label: "지하 수로", type: "normal", desc: "은밀한 침투 경로." },
   { id: 7, x: 35, y: 40, label: "중앙 에너지 발전소", type: "normal", desc: "도시 전력 공급 시설." },
   { id: 8, x: 65, y: 40, label: "데이터 센터", type: "normal", desc: "네트워크 및 데이터 관리." },
   { id: 18, x: 50, y: 50, label: "부대 ‘알파’", type: "normal", desc: "신시의 허리를 담당하는 최정예 안드로이드 부대. 중앙 정부로 가기 위해 반드시 돌파해야 한다." },
-  { id: 10, x: 20, y: 65, label: "신시 경찰청", type: "normal", desc: "치안 유지 시설." },
-  { id: 11, x: 40, y: 65, label: "시들종합병원", type: "normal", desc: "의료 시설." },
-  { id: 12, x: 60, y: 65, label: "연구 단지", type: "normal", desc: "첨단 기술 연구소." },
-  { id: 13, x: 80, y: 65, label: "상업 지구", type: "normal", desc: "번화가." },
-  { id: 19, x: 90, y: 75, label: "경경대학교", type: "normal", desc: "언덕 위의 대학." },
+  { id: 10, x: 27, y: 70, label: "신시 경찰청", type: "normal", desc: "치안 유지 시설." },
+  { id: 11, x: 43, y: 65, label: "시들종합병원", type: "normal", desc: "의료 시설." },
+  { id: 12, x: 55, y: 55, label: "연구 단지", type: "normal", desc: "첨단 기술 연구소." },
+  { id: 13, x: 80, y: 60, label: "상업 지구", type: "normal", desc: "번화가." },
+  { id: 19, x: 65, y: 67, label: "경경대학교", type: "normal", desc: "언덕 위의 대학." },
   { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "정부 청사 앞 거대 광장." },
-  { id: 15, x: 50, y: 90, label: "중앙 정부", type: "goal", desc: "최종 목표. 신시의 통제권을 탈취하라." },
+  { id: 15, x: 50, y: 85, label: "중앙 정부", type: "goal", desc: "최종 목표. 신시의 통제권을 탈취하라." },
 ];
 
 const INITIAL_EDGES = [
-  [0, 1], [0, 2], [1, 17], [1, 3], [1, 4], [2, 4], [2, 5],
+  [0, 1], [0, 2], [2, 17], [1, 3], [1, 4], [1, 16], [2, 4], [2, 5],
   [3, 6], [3, 7], [3, 16], [4, 7], [4, 8], [5, 8], [5, 9], [16, 7],
-  [7, 18], [8, 18], [18, 10], [18, 11], [18, 12], [18, 13],
-  [10, 14], [11, 14], [12, 14], [13, 14], [13, 19], [14, 15], [14, 19]
+  [16, 18], [8, 18], [18, 9], [12, 11], [18, 12], [12, 13],
+  [10, 14], [10, 11], [11, 14], [19, 14], [13, 19], [14, 15], [14, 19]
 ];
 
 export default function SFCitySiege() {

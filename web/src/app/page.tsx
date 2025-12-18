@@ -361,8 +361,8 @@ export default function SFCitySiege() {
                 </button>
                 <div className="w-px h-4 bg-slate-700 mx-1"></div>
                 <button onClick={() => setShowRebootConfirm(true)} className="p-2 border border-red-800 bg-red-950/50 text-red-400 rounded hover:bg-red-900"><Power size={14} /></button>
-                <button onClick={() => loadFromFirebase(false)} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-blue-950/50 border-blue-800 text-blue-300 hover:bg-blue-900"><Download size={14} /> LOAD</button>
-                <button onClick={saveToFirebase} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-emerald-950/50 border-emerald-800 text-emerald-300 hover:bg-emerald-900">
+                <button onClick={() => loadFromSupabase(false)} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-blue-950/50 border-blue-800 text-blue-300 hover:bg-blue-900"><Download size={14} /> LOAD</button>
+                <button onClick={saveToSupabase} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-emerald-950/50 border-emerald-800 text-emerald-300 hover:bg-emerald-900">
                   {isLoading ? <RefreshCw size={14} className="animate-spin"/> : <Cloud size={14} />} SAVE
                 </button>
               </>

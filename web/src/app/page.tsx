@@ -1,89 +1,55 @@
 // @ts-nocheck
 'use client';
 
-//테스트 다
 import React, { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js'; // Supabase 라이브러리
+import { createClient } from '@supabase/supabase-js'; 
 import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Terminal, Key, Edit3, Save, RotateCcw, CheckSquare, Square, RefreshCw, Calendar, ChevronLeft, ChevronRight, Power, Database, Plus, Trash2, X, Download, Cloud, Network, Move } from 'lucide-react';
 
 // ==============================================================================
 // [환경 변수 설정]
-// Vercel의 Environment Variables에 설정된 값을 불러옵니다.
 // ==============================================================================
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_KEY || ""; 
-// ==============================================================================
+const ADMIN_KEY = process.env.ADMIN_KEY || ""; // 기본키 설정
 
-// Supabase 클라이언트 생성
-// 환경 변수가 없으면 클라이언트가 생성되지 않도록 예외 처리
 const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('http')) 
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
 
 // --- 초기 데이터 정의 ---
-// --- 초기 데이터 정의 ---
 const GET_INITIAL_NODES = () => [
-  // [초반부] 진입 및 외곽
   { id: 0, x: 50, y: 10, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
   { id: 1, x: 30, y: 20, label: "제1 자동 방벽 제어소", type: "normal", desc: "북서쪽 방벽 제어 시설." },
   { id: 2, x: 70, y: 20, label: "제2 자동 방벽 제어소", type: "normal", desc: "북동쪽 방벽 제어 시설." },
   { id: 17, x: 10, y: 20, label: "드론 관제실", type: "deadend", desc: "경비 드론 관리 시설." },
-  
-  // [중반부 진입] 자원 및 정보 확보
   { id: 3, x: 20, y: 30, label: "산업 지구", type: "normal", desc: "자동화 공장 지대." },
   { id: 4, x: 50, y: 25, label: "신시 외곽 지대", type: "normal", desc: "시민 거주 구역." },
   { id: 5, x: 80, y: 30, label: "폐기물 처리장", type: "normal", desc: "폐기물 및 안드로이드 잔해 처리." },
   { id: 6, x: 10, y: 40, label: "군수용 물류터미널", type: "deadend", desc: "무기 보급 시설." },
   { id: 9, x: 90, y: 40, label: "방송 송출 센터", type: "deadend", desc: "미디어 통제 시설." },
   { id: 16, x: 15, y: 50, label: "지하 수로", type: "normal", desc: "은밀한 침투 경로." },
-
-  // [중반부 핵심] 요충지 진입 전
   { id: 7, x: 35, y: 40, label: "중앙 에너지 발전소", type: "normal", desc: "도시 전력 공급 시설." },
   { id: 8, x: 65, y: 40, label: "데이터 센터", type: "normal", desc: "네트워크 및 데이터 관리." },
-
-  // [병목 지점 - 필수 경유]
   { id: 18, x: 50, y: 50, label: "부대 ‘알파’", type: "normal", desc: "신시의 허리를 담당하는 최정예 안드로이드 부대. 중앙 정부로 가기 위해 반드시 돌파해야 한다." },
-
-  // [후반부] 심층부 구역 (다시 갈라짐)
   { id: 10, x: 20, y: 65, label: "신시 경찰청", type: "normal", desc: "치안 유지 시설." },
   { id: 11, x: 40, y: 65, label: "시들종합병원", type: "normal", desc: "의료 시설." },
   { id: 12, x: 60, y: 65, label: "연구 단지", type: "normal", desc: "첨단 기술 연구소." },
   { id: 13, x: 80, y: 65, label: "상업 지구", type: "normal", desc: "번화가." },
   { id: 19, x: 90, y: 75, label: "경경대학교", type: "normal", desc: "언덕 위의 대학." },
-
-  // [최후반부] 결전
   { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "정부 청사 앞 거대 광장." },
   { id: 15, x: 50, y: 90, label: "중앙 정부", type: "goal", desc: "최종 목표. 신시의 통제권을 탈취하라." },
 ];
 
 const INITIAL_EDGES = [
-  // 초반 진입
-  [0, 1], [0, 2],
-  [1, 17], [1, 3], [1, 4],
-  [2, 4], [2, 5],
-  [3, 6], [3, 7], [3, 16],
-  [4, 7], [4, 8],
-  [5, 8], [5, 9],
-  [16, 7], // 수로 -> 발전소 연결 추가
-
-  // 병목 지점으로 집결 (모든 길은 '알파'로 통한다)
-  [7, 18], [8, 18],
-
-  // '알파' 돌파 후 다시 확산
-  [18, 10], [18, 11], [18, 12], [18, 13],
-
-  // 후반부 연결
-  [10, 14], [11, 14], [12, 14], [13, 14],
-  [13, 19], // 대학교는 상업지구에서 빠짐
-
-  // 최종 목적지
-  [14, 15]
+  [0, 1], [0, 2], [1, 17], [1, 3], [1, 4], [2, 4], [2, 5],
+  [3, 6], [3, 7], [3, 16], [4, 7], [4, 8], [5, 8], [5, 9], [16, 7],
+  [7, 18], [8, 18], [18, 10], [18, 11], [18, 12], [18, 13],
+  [10, 14], [11, 14], [12, 14], [13, 14], [13, 19], [14, 15], [14, 19]
 ];
 
 export default function SFCitySiege() {
-  const [user, setUserState] = useState<User | null>(null);
-  const [adminSessionKey, setAdminSessionKey] = useState<string | null>(null);
+  const [user, setUserState] = useState(null);
+  const [adminSessionKey, setAdminSessionKey] = useState(null);
   
   // 상태 관리
   const [nodes, setNodes] = useState(GET_INITIAL_NODES());
@@ -91,9 +57,9 @@ export default function SFCitySiege() {
   
   const [currentLocation, setCurrentLocation] = useState(0);
   const [capturedNodes, setCapturedNodes] = useState([0]);
-  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [day, setDay] = useState(1);
-  const [logs, setLogs] = useState<string[]>(["Day 1: 북부 외곽 게이트 도착"]);
+  const [logs, setLogs] = useState(["Day 1: 북부 외곽 게이트 도착"]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [adminTab, setAdminTab] = useState('map');
@@ -101,9 +67,9 @@ export default function SFCitySiege() {
   const [showRebootConfirm, setShowRebootConfirm] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState(false);
   
-  const [warningNodeId, setWarningNodeId] = useState<number | null>(null);
+  const [warningNodeId, setWarningNodeId] = useState(null);
   const [warningText, setWarningText] = useState("");
-  const [warningEditIndex, setWarningEditIndex] = useState<number | null>(null);
+  const [warningEditIndex, setWarningEditIndex] = useState(null);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [inputKey, setInputKey] = useState("");
@@ -111,10 +77,10 @@ export default function SFCitySiege() {
 
   const [isEdgeEditMode, setIsEdgeEditMode] = useState(false);
 
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const logsEndRef = useRef(null);
   const selectedNode = selectedNodeId !== null ? nodes.find(n => n.id === selectedNodeId) : null;
 
-  // 1. 데이터 불러오기 (Supabase 직접 호출)
+  // 1. 데이터 불러오기
   const loadFromSupabase = async (isAuto = false) => {
     if (!supabase) {
       if (!isAuto) console.warn("Supabase 환경 변수가 설정되지 않았습니다.");
@@ -128,18 +94,19 @@ export default function SFCitySiege() {
         .eq('id', 1)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116: 데이터 없음(정상)
+      if (error && error.code !== 'PGRST116') throw error;
 
       if (data && data.data) {
         const saved = data.data;
         if (saved.nodes) setNodes(saved.nodes);
+        if (saved.edges) setEdges(saved.edges); // 엣지 상태도 불러오기 추가
         if (saved.currentLocation !== undefined) setCurrentLocation(saved.currentLocation);
         if (saved.capturedNodes) setCapturedNodes(saved.capturedNodes);
         if (saved.day) setDay(saved.day);
         if (saved.logs) setLogs(saved.logs);
         if (!isAuto) alert("데이터 로드 완료!");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Load Error:", err);
       if (!isAuto) alert("데이터 불러오기 실패: " + err.message);
     } finally {
@@ -147,12 +114,11 @@ export default function SFCitySiege() {
     }
   };
 
-  // 초기 로드
   useEffect(() => {
     loadFromSupabase(true);
   }, []);
 
-  // 2. 데이터 저장하기 (Supabase 직접 호출)
+  // 2. 데이터 저장하기
   const saveToSupabase = async () => {
     if (!supabase) {
       alert("Supabase 설정이 환경 변수에 있는지 확인해주세요.");
@@ -165,7 +131,8 @@ export default function SFCitySiege() {
 
     setIsLoading(true);
     try {
-      const payload = { nodes, currentLocation, capturedNodes, day, logs };
+      // edges도 저장 목록에 추가
+      const payload = { nodes, edges, currentLocation, capturedNodes, day, logs };
       
       const { error } = await supabase
         .from('game_state')
@@ -174,7 +141,7 @@ export default function SFCitySiege() {
       if (error) throw error;
 
       alert("서버에 저장되었습니다.");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Save Error:", err);
       alert("저장 실패: " + err.message);
     } finally {
@@ -182,28 +149,57 @@ export default function SFCitySiege() {
     }
   };
 
-    useEffect(() => {
+  // 3. 재실행(초기화) 로직 구현 - [수정사항 1: 누락된 함수 추가]
+  const handleReboot = async () => {
+    // 1. 로컬 상태 초기화
+    setNodes(GET_INITIAL_NODES());
+    setEdges(INITIAL_EDGES);
+    setCurrentLocation(0);
+    setCapturedNodes([0]);
+    setDay(1);
+    setLogs(["Day 1: 시스템 초기화 완료"]);
+    setSelectedNodeId(null);
+    
+    // 2. 서버 데이터도 초기화 (관리자 권한 있고 Supabase 연결된 경우)
+    if (supabase && isAdmin) {
+      setIsLoading(true);
+      try {
+        const payload = { 
+          nodes: GET_INITIAL_NODES(), 
+          edges: INITIAL_EDGES, 
+          currentLocation: 0, 
+          capturedNodes: [0], 
+          day: 1, 
+          logs: ["Day 1: 시스템 초기화 완료"] 
+        };
+        await supabase.from('game_state').upsert({ id: 1, data: payload });
+        console.log("Server state reset complete");
+      } catch (err) {
+        console.error("Reset Error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  const isConnected = (from: number, to: number) => edges.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
+  const isConnected = (from, to) => edges.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
-  // 상태 확인 함수 (단순화: 필수 조건 제거)
-  const getNodeStatus = (nodeId: number) => {
+  const getNodeStatus = (nodeId) => {
     if (currentLocation === nodeId) return 'current';
     if (capturedNodes.includes(nodeId)) return 'captured';
     
     const isCurrentLocationCaptured = capturedNodes.includes(currentLocation);
-    
-    // 현재 위치에서 연결되어 있고, 현재 위치가 점령된 상태라면 공격 가능
     if (isCurrentLocationCaptured && isConnected(currentLocation, nodeId) && !capturedNodes.includes(nodeId)) {
         return 'attackable';
     }
     return 'locked';
   };
 
-  const handleNodeClick = (node: any) => {
-    // 1. 관리자 엣지 편집 모드
+  const handleNodeClick = (node) => {
     if (isAdmin && isEdgeEditMode) {
       if (selectedNodeId === null) {
         setSelectedNodeId(node.id);
@@ -225,12 +221,10 @@ export default function SFCitySiege() {
       }
       return;
     }
-
-    // 2. 일반 모드
     setSelectedNodeId(node.id);
   };
 
-  const performMove = (targetId: number) => {
+  const performMove = (targetId) => {
     const targetNode = nodes.find(n => n.id === targetId);
     if (!targetNode) return;
     setCurrentLocation(targetId);
@@ -248,24 +242,25 @@ export default function SFCitySiege() {
     }
   };
 
-  const handleUpdateNode = (id: number, key: string, value: any) => {
+  const handleUpdateNode = (id, key, value) => {
     setNodes(nodes.map(n => n.id === id ? { ...n, [key]: value } : n));
   };
 
-  const openWarningModal = (id: number, index: number | null = null, currentText = "") => {
+  const openWarningModal = (id, index = null, currentText = "") => {
     setWarningNodeId(id);
     setWarningEditIndex(index);
     setWarningText(currentText);
     setShowWarningModal(true);
   };
-  const saveWarning = (e: React.FormEvent) => {
+  
+  const saveWarning = (e) => {
     e.preventDefault();
     if (!warningText.trim()) return;
     setNodes(nodes.map(n => {
       if (n.id === warningNodeId) {
         const current = n.customWarnings || [];
         const updated = warningEditIndex !== null 
-          ? current.map((w: string, i: number) => i === warningEditIndex ? warningText : w)
+          ? current.map((w, i) => i === warningEditIndex ? warningText : w)
           : [...current, warningText];
         return { ...n, customWarnings: updated };
       }
@@ -273,16 +268,17 @@ export default function SFCitySiege() {
     }));
     setShowWarningModal(false);
   };
-  const handleRemoveWarning = (id: number, index: number) => {
+  
+  const handleRemoveWarning = (id, index) => {
     setNodes(nodes.map(n => {
       if (n.id === id && n.customWarnings) {
-        return { ...n, customWarnings: n.customWarnings.filter((_: string, i: number) => i !== index) };
+        return { ...n, customWarnings: n.customWarnings.filter((_, i) => i !== index) };
       }
       return n;
     }));
   };
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  const handleAuthSubmit = (e) => {
     e.preventDefault();
     if (inputKey === ADMIN_KEY) {
       setAdminSessionKey(inputKey);
@@ -295,7 +291,7 @@ export default function SFCitySiege() {
     }
   };
 
-  const changeDay = (val: number) => setDay(prev => Math.max(1, prev + val));
+  const changeDay = (val) => setDay(prev => Math.max(1, prev + val));
   const adminMoveUnit = () => selectedNode && performMove(selectedNode.id);
 
   return (
@@ -438,18 +434,6 @@ export default function SFCitySiege() {
                      <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">{node.id}</div>
                      <input type="text" value={node.label} onChange={(e) => handleUpdateNode(node.id, 'label', e.target.value)} className="flex-1 bg-transparent border-b border-slate-700 text-white font-bold focus:outline-none"/>
                    </div>
-                   {/* 좌표 수정 기능 추가 */}
-                   <div className="flex gap-4 mb-3 p-2 bg-slate-950 rounded border border-slate-800">
-                      <div className="flex items-center gap-2">
-                        <Move size={12} className="text-slate-500"/>
-                        <span className="text-xs text-slate-500 font-mono">X:</span>
-                        <input type="number" value={node.x} onChange={(e) => handleUpdateNode(node.id, 'x', Number(e.target.value))} className="w-16 bg-slate-900 border border-slate-700 rounded px-1 text-xs text-blue-300"/>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-500 font-mono">Y:</span>
-                        <input type="number" value={node.y} onChange={(e) => handleUpdateNode(node.id, 'y', Number(e.target.value))} className="w-16 bg-slate-900 border border-slate-700 rounded px-1 text-xs text-blue-300"/>
-                      </div>
-                   </div>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <textarea value={node.desc} onChange={(e) => handleUpdateNode(node.id, 'desc', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 h-16 resize-none"/>
                      <div>
@@ -487,6 +471,22 @@ export default function SFCitySiege() {
                         <span className="px-2 py-1 rounded text-xs font-bold uppercase inline-block bg-slate-800 text-slate-400">{getNodeStatus(selectedNode.id)}</span>
                     </div>
                   </div>
+                  
+                  {/* [수정사항 2] Tactical 탭의 관리자 모드에 XY 좌표 이동 기능 추가 */}
+                  {isAdmin && (
+                    <div className="flex gap-2 p-2 bg-slate-950 rounded border border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <Move size={12} className="text-slate-500"/>
+                        <span className="text-xs text-slate-500 font-mono">X:</span>
+                        <input type="number" value={selectedNode.x} onChange={(e) => handleUpdateNode(selectedNode.id, 'x', Number(e.target.value))} className="w-16 bg-slate-900 border border-slate-700 rounded px-1 text-xs text-blue-300"/>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-500 font-mono">Y:</span>
+                        <input type="number" value={selectedNode.y} onChange={(e) => handleUpdateNode(selectedNode.id, 'y', Number(e.target.value))} className="w-16 bg-slate-900 border border-slate-700 rounded px-1 text-xs text-blue-300"/>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="h-px bg-slate-700 w-full"/>
                   {isAdmin ? (
                     <>

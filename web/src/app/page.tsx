@@ -20,7 +20,7 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
 const GET_INITIAL_NODES = () => [
   { id: 0, x: 50, y: 10, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
   { id: 1, x: 30, y: 20, label: "제1 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북서쪽의 방벽 AI 서브 코어. 외곽 방어 포탑이 배치되어 있다. 해킹을 통한 잠입 혹은 일부 시설 파괴를 요한다." },
-  { id: 2, x: 70, y: 25, label: "제2 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북동쪽의 방벽 AI 서브 코어. 외곽 방어 포탑이 배치되어 있다. 해킹을 통한 잠입 혹은 일부 시설 파괴를 요한다." },
+  { id: 2, x: 70, y: 20, label: "제2 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북동쪽의 방벽 AI 서브 코어. 외곽 방어 포탑이 배치되어 있다. 해킹을 통한 잠입 혹은 일부 시설 파괴를 요한다." },
   { id: 17, x: 90, y: 25, label: "드론 관제실", type: "deadend", desc: "도시 외벽을 순행하는 경비 드론들을 관리한다. 비시민권자들의 신시 진입을 대비하는 역할을 한다." },
   { id: 3, x: 20, y: 30, label: "산업 지구", type: "normal", desc: "자동화 공장 지대." },
   { id: 4, x: 50, y: 25, label: "신시 외곽 지대", type: "normal", desc: "중앙 도시에서 떨어진 시민 거주 구역. 비교적 가난한 이들이 거주하며, 치안이 좋지 않다." },

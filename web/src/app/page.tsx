@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js'; // Supabase 라이브러리
-import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Terminal, Key, Edit3, Save, RotateCcw, CheckSquare, Square, RefreshCw, Calendar, ChevronLeft, ChevronRight, Power, Database, Plus, Trash2, X, Download, Cloud } from 'lucide-react';
+import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Terminal, Key, Edit3, Save, RotateCcw, CheckSquare, Square, RefreshCw, Calendar, ChevronLeft, ChevronRight, Power, Database, Plus, Trash2, X, Download, Cloud, Network, Move } from 'lucide-react';
 
 // ==============================================================================
 // [환경 변수 설정]

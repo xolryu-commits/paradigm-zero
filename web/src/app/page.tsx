@@ -21,7 +21,7 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
 
-// --- 초기 데이터 정의 (도시 구조 및 노드 정보) ---
+// --- 초기 데이터 정의 ---
 const GET_INITIAL_NODES = () => [
   { id: 0, x: 50, y: 15, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
   { id: 1, x: 35, y: 25, label: "제1 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북서쪽의 방벽 AI 서브 코어." },
@@ -37,12 +37,12 @@ const GET_INITIAL_NODES = () => [
   { id: 16, x: 15, y: 55, label: "지하 수로", type: "normal", desc: "악취가 나지만, 경비가 삼엄하지는 않다." },
   { id: 10, x: 40, y: 55, label: "신시 경찰청", type: "normal", desc: "보안용 안드로이드가 다수 배치되어 있다." },
   { id: 11, x: 60, y: 55, label: "시들종합병원", type: "normal", desc: "대형 의료 시설." },
-  { id: 18, x: 85, y: 50, label: "부대 ‘알파’", type: "normal", desc: "필수 점령 목표. 이곳을 점령해야 중앙 정부의 방어 코드가 해제된다." },
+  { id: 18, x: 85, y: 50, label: "부대 ‘알파’", type: "normal", desc: "신시에서 처음으로 안드로이드로만 구성된 부대가 위치한다. 무력 충돌이 예상된다." },
   { id: 12, x: 30, y: 65, label: "연구 단지", type: "normal", desc: "기술 개발 및 상용화가 이루어지는 곳." },
   { id: 13, x: 70, y: 65, label: "상업 지구", type: "normal", desc: "문화 예술의 거리." },
   { id: 19, x: 90, y: 70, label: "경경대학교", type: "normal", desc: "언덕 위에 지어졌다." },
   { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "중앙 정부 앞의 거대한 광장." },
-  { id: 15, x: 50, y: 60, label: "중앙 정부", type: "goal", desc: "작전의 최종 목표지. (진입 조건: 부대 '알파' 확보)" },
+  { id: 15, x: 50, y: 60, label: "중앙 정부", type: "goal", desc: "작전의 최종 목표지. 신시의 통제권을 탈취하라." },
 ];
 
 const INITIAL_EDGES = [
@@ -52,12 +52,6 @@ const INITIAL_EDGES = [
   [11, 14], [12, 14], [16, 12], [18, 11], [13, 14], [13, 19], 
   [10, 15], [14, 15] // 원래 경로 복구 (경찰청/광장 -> 중앙정부)
 ];
-
-// 필수 조건 설정 (부대 알파 -> 중앙 정부)
-const SPECIAL_CONDITIONS = {
-  TARGET_NODE: 15, // 중앙 정부
-  REQUIRED_NODE: 18 // 부대 알파
-};
 
 export default function SFCitySiege() {
   const [user, setUserState] = useState<User | null>(null);
@@ -198,6 +192,7 @@ export default function SFCitySiege() {
     return 'locked';
   };
 
+  
   const handleNodeClick = (node: any) => {
     // 1. 관리자 엣지 편집 모드
     if (isAdmin && isEdgeEditMode) {
@@ -215,8 +210,10 @@ export default function SFCitySiege() {
 
         if (existsIndex >= 0) {
             setEdges(prev => prev.filter((_, idx) => idx !== existsIndex));
+            setLogs(prev => [...prev, `[ADMIN] 연결 삭제: ${node1} - ${node2}`]);
         } else {
             setEdges(prev => [...prev, [node1, node2]]);
+            setLogs(prev => [...prev, `[ADMIN] 연결 생성: ${node1} - ${node2}`]);
         }
       }
       return;
@@ -224,6 +221,7 @@ export default function SFCitySiege() {
 
     // 2. 일반 모드
     setSelectedNodeId(node.id);
+  };
 
   const performMove = (targetId: number) => {
     const targetNode = nodes.find(n => n.id === targetId);
@@ -253,7 +251,6 @@ export default function SFCitySiege() {
     setWarningText(currentText);
     setShowWarningModal(true);
   };
-
   const saveWarning = (e: React.FormEvent) => {
     e.preventDefault();
     if (!warningText.trim()) return;
@@ -269,7 +266,6 @@ export default function SFCitySiege() {
     }));
     setShowWarningModal(false);
   };
-
   const handleRemoveWarning = (id: number, index: number) => {
     setNodes(nodes.map(n => {
       if (n.id === id && n.customWarnings) {
@@ -281,7 +277,6 @@ export default function SFCitySiege() {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // 환경 변수에 설정된 관리자 키와 비교
     if (inputKey === ADMIN_KEY_ENV) {
       setAdminSessionKey(inputKey);
       setIsAdmin(true);
@@ -305,7 +300,7 @@ export default function SFCitySiege() {
           <div className="bg-red-950/50 border border-red-500 p-8 rounded-lg w-full max-w-sm shadow-2xl text-center">
              <AlertTriangle size={48} className="text-red-500 mx-auto mb-4 animate-pulse" />
              <h3 className="text-2xl font-bold text-white mb-2">SYSTEM REBOOT</h3>
-             <p className="text-red-200 mb-6 text-sm">모든 데이터가 초기화됩니다.</p>
+             <p className="text-red-200 mb-6 text-sm">모든 데이터와 경로 설정이 초기화됩니다.</p>
              <div className="flex gap-3 justify-center">
                <button onClick={() => setShowRebootConfirm(false)} className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 font-bold">취소</button>
                <button onClick={() => { handleReboot(); setShowRebootConfirm(false); }} className="px-6 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold">재실행</button>
@@ -346,18 +341,26 @@ export default function SFCitySiege() {
         <div className="flex items-center gap-2">
           <Terminal className={isAdmin ? "text-red-400" : "text-blue-400"} size={20} />
           <h1 className={`text-lg font-bold tracking-wider ${isAdmin ? "text-red-400" : "text-blue-400"}`}>PARADIGM ZERO</h1>
+          {isAdmin && <span className="text-xs bg-red-900/50 text-red-200 px-2 py-0.5 rounded ml-2">ADMIN MODE</span>}
         </div>
         <div className="flex items-center gap-2">
             {isAdmin && (
               <>
+                <button 
+                    onClick={() => { setIsEdgeEditMode(!isEdgeEditMode); setSelectedNodeId(null); }} 
+                    className={`flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border transition-all ${isEdgeEditMode ? 'bg-yellow-600 text-white border-yellow-500 animate-pulse' : 'bg-slate-800 border-slate-600 text-slate-400 hover:bg-slate-700'}`}
+                >
+                    <Network size={14} /> {isEdgeEditMode ? "LINK EDIT ON" : "LINK EDIT"}
+                </button>
+                <div className="w-px h-4 bg-slate-700 mx-1"></div>
                 <button onClick={() => setShowRebootConfirm(true)} className="p-2 border border-red-800 bg-red-950/50 text-red-400 rounded hover:bg-red-900"><Power size={14} /></button>
-                <button onClick={() => loadFromSupabase(false)} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-blue-950/50 border-blue-800 text-blue-300 hover:bg-blue-900"><Download size={14} /> LOAD</button>
-                <button onClick={saveToSupabase} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-emerald-950/50 border-emerald-800 text-emerald-300 hover:bg-emerald-900">
+                <button onClick={() => loadFromFirebase(false)} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-blue-950/50 border-blue-800 text-blue-300 hover:bg-blue-900"><Download size={14} /> LOAD</button>
+                <button onClick={saveToFirebase} disabled={isLoading} className="flex items-center gap-1 px-3 py-1 text-xs font-mono rounded border bg-emerald-950/50 border-emerald-800 text-emerald-300 hover:bg-emerald-900">
                   {isLoading ? <RefreshCw size={14} className="animate-spin"/> : <Cloud size={14} />} SAVE
                 </button>
               </>
             )}
-            <button onClick={() => { if (isAdmin) setIsAdmin(false); else setShowAuthModal(true); }} className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded border ${isAdmin ? 'bg-red-600 text-white border-red-500' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>
+            <button onClick={() => { if (isAdmin) { setIsAdmin(false); setIsEdgeEditMode(false); } else setShowAuthModal(true); }} className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded border ${isAdmin ? 'bg-red-600 text-white border-red-500' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>
                 {isAdmin ? <RotateCcw size={14} /> : <Lock size={14} />} {isAdmin ? "EXIT" : "OBSERVER"}
             </button>
         </div>
@@ -368,14 +371,16 @@ export default function SFCitySiege() {
         {/* Left Panel: Map */}
         <div className={`flex-1 relative bg-black overflow-hidden ${isAdmin && adminTab === 'database' ? 'hidden md:block md:w-1/3 opacity-50 pointer-events-none' : ''}`}>
           <div className="absolute inset-0 opacity-10 bg-[linear-gradient(#334155_1px,transparent_1px),linear-gradient(90deg,#334155_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-           {isEdgeEditMode && (
+          
+          {isEdgeEditMode && (
               <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-yellow-600/90 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg border border-yellow-400 backdrop-blur-sm pointer-events-none">
                   경로 편집 모드: 노드를 클릭하여 연결/해제
               </div>
           )}
+
           <div className="absolute inset-0 w-full h-full">
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              {EDGES.map(([startId, endId], idx) => {
+              {edges.map(([startId, endId], idx) => {
                 const start = nodes.find(n => n.id === startId);
                 const end = nodes.find(n => n.id === endId);
                 if (!start || !end) return null;
@@ -385,18 +390,25 @@ export default function SFCitySiege() {
                 return <line key={idx} x1={`${start.x}%`} y1={`${start.y}%`} x2={`${end.x}%`} y2={`${end.y}%`} stroke={active ? "#10b981" : (isAdmin ? "#64748b" : "#475569")} strokeWidth={active ? 3 : 1} strokeDasharray={active ? "none" : "5,5"} className="transition-all duration-500" />;
               })}
             </svg>
-            {nodes.map(node => (
-              <button key={node.id} onClick={() => handleNodeClick(node)} style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all z-10 
-                ${getNodeStatus(node.id) === 'current' ? 'bg-blue-500 border-blue-300 shadow-[0_0_15px_#3b82f6]' : 
-                  getNodeStatus(node.id) === 'captured' ? 'bg-emerald-500 border-emerald-300 shadow-[0_0_10px_#10b981]' : 
-                  getNodeStatus(node.id) === 'attackable' ? 'bg-yellow-500 border-yellow-300 animate-pulse' : 'bg-gray-800 border-gray-600 opacity-60'}
-                ${selectedNodeId === node.id ? 'scale-125 ring-4 ring-white/20' : ''}`}>
-                {getNodeStatus(node.id) === 'locked' ? <Lock size={12} className="text-gray-400" /> : (node.type === 'deadend' && (isAdmin || capturedNodes.includes(node.id)) ? <AlertTriangle size={16} /> : (node.type === 'start' ? <Navigation size={16} /> : (node.type === 'goal' ? <Target size={16} /> : <MapPin size={16} />)))}
-              </button>
-            ))}
+            {nodes.map(node => {
+                const status = getNodeStatus(node.id);
+                const isEditSelected = isEdgeEditMode && selectedNodeId === node.id;
+
+                return (
+                  <button key={node.id} onClick={() => handleNodeClick(node)} style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all z-10 
+                  ${isEditSelected ? 'bg-yellow-500 border-white scale-110 shadow-[0_0_20px_#fbbf24]' : ''}
+                  ${!isEditSelected && status === 'current' ? 'bg-blue-500 border-blue-300 shadow-[0_0_15px_#3b82f6]' : ''}
+                  ${!isEditSelected && status === 'captured' ? 'bg-emerald-500 border-emerald-300 shadow-[0_0_10px_#10b981]' : ''}
+                  ${!isEditSelected && status === 'attackable' ? 'bg-yellow-500 border-yellow-300 animate-pulse' : ''}
+                  ${!isEditSelected && status === 'locked' ? 'bg-gray-800 border-gray-600 opacity-60' : ''}
+                  ${selectedNodeId === node.id && !isEdgeEditMode ? 'scale-125 ring-4 ring-white/20' : ''}`}>
+                    {status === 'locked' ? <Lock size={12} className="text-gray-400" /> : (node.type === 'deadend' && (isAdmin || capturedNodes.includes(node.id)) ? <AlertTriangle size={16} /> : (node.type === 'start' ? <Navigation size={16} /> : (node.type === 'goal' ? <Target size={16} /> : <MapPin size={16} />)))}
+                  </button>
+                );
+            })}
           </div>
-          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-blue-500/30 p-3 rounded text-sm">
+          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-blue-500/30 p-3 rounded text-sm pointer-events-none">
             <div className="text-blue-400 text-xs mb-1">Current Position</div>
             <div className="font-bold text-white flex gap-2"><Navigation size={14}/>{nodes.find(n => n.id === currentLocation)?.label}</div>
             <div className="mt-2 pt-2 border-t border-slate-700/50 text-emerald-400 text-xs font-bold flex gap-2"><Calendar size={12}/> DAY {day}</div>
@@ -464,7 +476,9 @@ export default function SFCitySiege() {
                 <div className="space-y-4">
                   <div>
                     {isAdmin ? <input value={selectedNode.label} onChange={(e) => handleUpdateNode(selectedNode.id, 'label', e.target.value)} className="bg-slate-800 border-slate-600 rounded p-2 text-lg text-white font-bold w-full"/> : <h3 className="text-2xl font-bold text-white">{selectedNode.label}</h3>}
-                    <div className="mt-2 px-2 py-1 rounded text-xs font-bold uppercase inline-block bg-slate-800 text-slate-400">{getNodeStatus(selectedNode.id)}</div>
+                    <div className="mt-2 flex gap-2">
+                        <span className="px-2 py-1 rounded text-xs font-bold uppercase inline-block bg-slate-800 text-slate-400">{getNodeStatus(selectedNode.id)}</span>
+                    </div>
                   </div>
                   <div className="h-px bg-slate-700 w-full"/>
                   {isAdmin ? (
@@ -494,11 +508,8 @@ export default function SFCitySiege() {
                       <>
                         {getNodeStatus(selectedNode.id) === 'attackable' && <div className="col-span-2 py-3 bg-slate-900 border border-yellow-700/50 text-yellow-600 rounded flex justify-center gap-2 opacity-70"><Lock size={20}/> 작전 승인 대기</div>}
                         {getNodeStatus(selectedNode.id) === 'captured' && selectedNode.id !== currentLocation && <div className="col-span-2 py-3 bg-slate-900 border border-emerald-700/50 text-emerald-600 rounded flex justify-center gap-2 opacity-70"><Shield size={20}/> 확보된 지역</div>}
-                        {getNodeStatus(selectedNode.id) === 'locked' && <div className="col-span-2 py-3 bg-slate-900 text-slate-600 rounded flex justify-center gap-2 border border-slate-800"><Lock size={16}/> 경로 미확보</div>}
-                           {selectedNode.id === SPECIAL_CONDITIONS.TARGET_NODE ? 
-                                (capturedNodes.includes(SPECIAL_CONDITIONS.REQUIRED_NODE) ? <><Lock size={16}/> 경로 미확보</> : <><Lock size={16}/> 조건 미달: 부대 '알파' 필요</>) : 
-                                <><Lock size={16}/> 경로 미확보</>
-                            }
+                        {getNodeStatus(selectedNode.id) === 'locked' && <div className="col-span-2 py-3 bg-slate-900 text-slate-600 rounded flex justify-center gap-2 border border-slate-800">
+                            <Lock size={16}/> 경로 미확보
                         </div>}
                       </>
                     )}

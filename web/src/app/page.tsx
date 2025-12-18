@@ -22,6 +22,7 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
   : null;
 
 // --- 초기 데이터 정의 ---
+// --- 초기 데이터 정의 ---
 const GET_INITIAL_NODES = () => [
   { id: 0, x: 50, y: 15, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
   { id: 1, x: 35, y: 25, label: "제1 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북서쪽의 방벽 AI 서브 코어." },
@@ -169,30 +170,24 @@ export default function SFCitySiege() {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  const isConnected = (from: number, to: number) => EDGES.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
+  
+  // 수정됨: EDGES 대신 edges 상태 변수 사용
+  const isConnected = (from: number, to: number) => edges.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
-
-  // 상태 확인 함수 (필수 경유지 해금 로직 적용)
+  // 상태 확인 함수 (단순화: 필수 조건 제거)
   const getNodeStatus = (nodeId: number) => {
     if (currentLocation === nodeId) return 'current';
     if (capturedNodes.includes(nodeId)) return 'captured';
     
     const isCurrentLocationCaptured = capturedNodes.includes(currentLocation);
     
-    // 현재 위치에서 연결되어 있고, 현재 위치가 점령된 상태라면
+    // 현재 위치에서 연결되어 있고, 현재 위치가 점령된 상태라면 공격 가능
     if (isCurrentLocationCaptured && isConnected(currentLocation, nodeId) && !capturedNodes.includes(nodeId)) {
-        // [조건] 중앙 정부(TARGET_NODE)는 부대 알파(REQUIRED_NODE)가 점령된 상태여야만 공격 가능 (보안 잠금)
-        if (nodeId === SPECIAL_CONDITIONS.TARGET_NODE) {
-            if (!capturedNodes.includes(SPECIAL_CONDITIONS.REQUIRED_NODE)) {
-                return 'locked'; // 물리적으로 연결되어 있어도 조건 미달 시 잠금
-            }
-        }
         return 'attackable';
     }
     return 'locked';
   };
 
-  
   const handleNodeClick = (node: any) => {
     // 1. 관리자 엣지 편집 모드
     if (isAdmin && isEdgeEditMode) {
@@ -204,6 +199,7 @@ export default function SFCitySiege() {
         const node1 = selectedNodeId;
         const node2 = node.id;
         
+        // 수정됨: EDGES 대신 edges 상태 변수 사용
         const existsIndex = edges.findIndex(e => 
             (e[0] === node1 && e[1] === node2) || (e[0] === node2 && e[1] === node1)
         );
@@ -380,6 +376,7 @@ export default function SFCitySiege() {
 
           <div className="absolute inset-0 w-full h-full">
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
+              {/* 수정됨: EDGES 대신 edges 상태 변수 사용 */}
               {edges.map(([startId, endId], idx) => {
                 const start = nodes.find(n => n.id === startId);
                 const end = nodes.find(n => n.id === endId);

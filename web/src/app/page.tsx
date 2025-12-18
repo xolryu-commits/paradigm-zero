@@ -12,7 +12,7 @@ import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Ter
 // ==============================================================================
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const ADMIN_KEY_ENV = process.env.ADMIN_KEY || ""; 
+const ADMIN_KEY = process.env.ADMIN_KEY || ""; 
 // ==============================================================================
 
 // Supabase 클라이언트 생성
@@ -284,7 +284,7 @@ export default function SFCitySiege() {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputKey === ADMIN_KEY_ENV) {
+    if (inputKey === ADMIN_KEY) {
       setAdminSessionKey(inputKey);
       setIsAdmin(true);
       setShowAuthModal(false);

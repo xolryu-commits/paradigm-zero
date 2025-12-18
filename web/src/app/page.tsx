@@ -24,37 +24,49 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
 // --- 초기 데이터 정의 (도시 구조 및 노드 정보) ---
 const GET_INITIAL_NODES = () => [
   { id: 0, x: 50, y: 15, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
-  { id: 1, x: 35, y: 25, label: "제1 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북서쪽의 방벽 AI 서브 코어. 외곽 방어 포탑이 배치되어 있다. 해킹을 통한 잠입 혹은 일부 시설 파괴를 요한다." },
-  { id: 2, x: 65, y: 25, label: "제2 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북동쪽의 방벽 AI 서브 코어. 외곽 방어 포탑이 배치되어 있다. 해킹을 통한 잠입 혹은 일부 시설 파괴를 요한다" },
-  { id: 17, x: 10, y: 25, label: "드론 관제실", type: "deadend", desc: "도시 외벽을 순행하는 경비 드론들을 관리한다. 비시민권자들의 신시 진입을 대비하는 역할을 한다." },
+  { id: 1, x: 35, y: 25, label: "제1 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북서쪽의 방벽 AI 서브 코어." },
+  { id: 2, x: 65, y: 25, label: "제2 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북동쪽의 방벽 AI 서브 코어." },
+  { id: 17, x: 10, y: 25, label: "드론 관제실", type: "deadend", desc: "도시 외벽을 순행하는 경비 드론들을 관리한다." },
   { id: 3, x: 20, y: 35, label: "산업 지구", type: "normal", desc: "자동화된 공장들이 여럿 위치한다." },
-  { id: 4, x: 50, y: 30, label: "신시 외곽 지대", type: "normal", desc: "중앙 도시에서 떨어진 시민 거주 구역. 비교적 가난한 이들이 거주하며, 치안이 좋지 않다." },
-  { id: 5, x: 80, y: 35, label: "폐기물 및 안드로이드 잔해 처리장", type: "normal", desc: "고장난 안드로이드와 도시 폐기물이 처리되는 공장 시설. 자원 및 물자의 확보가 가능할 것으로 보인다." },
-  { id: 6, x: 10, y: 45, label: "군수용 물류터미널", type: "deadend", desc: "군용 안드로이드 상용화 이전 물자 공급망으로 사용되던 시설. 현재는 주로 기계 부품 및 무기 보급을 처리한다. 자원 및 물자의 확보가 가능할 것으로 보인다." },
-  { id: 7, x: 30, y: 45, label: "중앙 에너지 발전소", type: "normal", desc: "신시에 전력 에너지를 공급하는 코어 시설. 보안용 안드로이드가 여럿 배치되어 주의를 요한다. 신시로 향하는 전력을 단기간 셧다운 시킬 수 있다." },
+  { id: 4, x: 50, y: 30, label: "신시 외곽 지대", type: "normal", desc: "중앙 도시에서 떨어진 시민 거주 구역." },
+  { id: 5, x: 80, y: 35, label: "폐기물 처리장", type: "normal", desc: "고장난 안드로이드와 도시 폐기물이 처리되는 곳." },
+  { id: 6, x: 10, y: 45, label: "군수용 물류터미널", type: "deadend", desc: "기계 부품 및 무기 보급을 처리한다." },
+  { id: 7, x: 30, y: 45, label: "중앙 에너지 발전소", type: "normal", desc: "신시에 전력 에너지를 공급하는 코어 시설." },
   { id: 8, x: 70, y: 45, label: "데이터 센터", type: "normal", desc: "신시의 네트워크 서버와 데이터를 관리하는 시설." },
-  { id: 9, x: 90, y: 40, label: "방송 송출 센터", type: "deadend", desc: "대표 방송국이 더러 위치한다. 뉴스 등의 매체를 시청자에게 내보내기 직전 최종적으로 편성, 제어, 전송하는 장소." }, 
+  { id: 9, x: 90, y: 40, label: "방송 송출 센터", type: "deadend", desc: "미디어 통제 및 송출 시설." }, 
   { id: 16, x: 15, y: 55, label: "지하 수로", type: "normal", desc: "악취가 나지만, 경비가 삼엄하지는 않다." },
-  { id: 10, x: 40, y: 55, label: "신시 경찰청", type: "normal", desc: "보안 및 시민 안전을 위해 설립된 치안 시설. 현재 안드로이드 상용화의 흐름으로, 보안용 안드로이드가 다수 배치되어 운영되고 있다." },
-  { id: 11, x: 60, y: 55, label: "시들종합병원", type: "normal", desc: "신시 내에서도 손꼽히는 대형 병원. 의약품을 얻을 수 있을 것으로 보인다." },
-  { id: 18, x: 85, y: 50, label: "부대 ‘알파’", type: "normal", desc: "신시에서 처음으로 안드로이드로만 구성된 부대가 위치한다. 무력 충돌이 예상된다." },
-  { id: 12, x: 30, y: 65, label: "연구 단지", type: "normal", desc: "기술 개발 및 상용화가 이루어지는 곳. 정부의 적극적 지원 아래 번성 중이다." },
-  { id: 13, x: 70, y: 65, label: "상업 지구", type: "normal", desc: "문화 예술의 거리가 위치한다." },
+  { id: 10, x: 40, y: 55, label: "신시 경찰청", type: "normal", desc: "보안용 안드로이드가 다수 배치되어 있다." },
+  { id: 11, x: 60, y: 55, label: "시들종합병원", type: "normal", desc: "대형 의료 시설." },
+  { id: 18, x: 85, y: 50, label: "부대 ‘알파’", type: "normal", desc: "필수 점령 목표. 이곳을 점령해야 중앙 정부의 방어 코드가 해제된다." },
+  { id: 12, x: 30, y: 65, label: "연구 단지", type: "normal", desc: "기술 개발 및 상용화가 이루어지는 곳." },
+  { id: 13, x: 70, y: 65, label: "상업 지구", type: "normal", desc: "문화 예술의 거리." },
   { id: 19, x: 90, y: 70, label: "경경대학교", type: "normal", desc: "언덕 위에 지어졌다." },
-  { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "중앙 정부 앞의 거대한 광장. 유동인구가 많다." },
-  { id: 15, x: 50, y: 60, label: "중앙 정부", type: "goal", desc: "작전의 최종 목표지. 신시의 통제권을 탈취하라." },
+  { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "중앙 정부 앞의 거대한 광장." },
+  { id: 15, x: 50, y: 60, label: "중앙 정부", type: "goal", desc: "작전의 최종 목표지. (진입 조건: 부대 '알파' 확보)" },
 ];
 
-const EDGES = [
+const INITIAL_EDGES = [
   [0, 1], [0, 2], [1, 17], [1, 3], [1, 4], [2, 4], [2, 5],
   [3, 6], [3, 7], [3, 16], [4, 7], [4, 8], [5, 8], [5, 9], [5, 18],
-  [7, 10], [7, 12], [8, 11], [8, 13], [10, 14], [10, 15],
-  [11, 14], [12, 14], [16, 12], [18, 11], [13, 14], [13, 19], [14, 15]
+  [7, 10], [7, 12], [8, 11], [8, 13], [10, 14],
+  [11, 14], [12, 14], [16, 12], [18, 11], [13, 14], [13, 19], 
+  [10, 15], [14, 15] // 원래 경로 복구 (경찰청/광장 -> 중앙정부)
 ];
 
+// 필수 조건 설정 (부대 알파 -> 중앙 정부)
+const SPECIAL_CONDITIONS = {
+  TARGET_NODE: 15, // 중앙 정부
+  REQUIRED_NODE: 18 // 부대 알파
+};
+
 export default function SFCitySiege() {
+  const [user, setUserState] = useState<User | null>(null);
   const [adminSessionKey, setAdminSessionKey] = useState<string | null>(null);
+  
+  // 상태 관리
   const [nodes, setNodes] = useState(GET_INITIAL_NODES());
+  const [edges, setEdges] = useState(INITIAL_EDGES); 
+  
   const [currentLocation, setCurrentLocation] = useState(0);
   const [capturedNodes, setCapturedNodes] = useState([0]);
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
@@ -74,6 +86,8 @@ export default function SFCitySiege() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [inputKey, setInputKey] = useState("");
   const [authError, setAuthError] = useState("");
+
+  const [isEdgeEditMode, setIsEdgeEditMode] = useState(false);
 
   const logsEndRef = useRef<HTMLDivElement>(null);
   const selectedNode = selectedNodeId !== null ? nodes.find(n => n.id === selectedNodeId) : null;
@@ -154,7 +168,7 @@ export default function SFCitySiege() {
     setCurrentLocation(0);
     setCapturedNodes([0]);
     setDay(1);
-    setLogs(["Day 1: 북부 외곽 게이트 도착 (시스템 리셋)"]);
+    setLogs(["Day 1: 북부 외곽 게이트 도착"]);
   };
 
   useEffect(() => {
@@ -163,15 +177,53 @@ export default function SFCitySiege() {
 
   const isConnected = (from: number, to: number) => EDGES.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
+
+  // 상태 확인 함수 (필수 경유지 해금 로직 적용)
   const getNodeStatus = (nodeId: number) => {
     if (currentLocation === nodeId) return 'current';
     if (capturedNodes.includes(nodeId)) return 'captured';
+    
     const isCurrentLocationCaptured = capturedNodes.includes(currentLocation);
-    if (isCurrentLocationCaptured && isConnected(currentLocation, nodeId) && !capturedNodes.includes(nodeId)) return 'attackable';
+    
+    // 현재 위치에서 연결되어 있고, 현재 위치가 점령된 상태라면
+    if (isCurrentLocationCaptured && isConnected(currentLocation, nodeId) && !capturedNodes.includes(nodeId)) {
+        // [조건] 중앙 정부(TARGET_NODE)는 부대 알파(REQUIRED_NODE)가 점령된 상태여야만 공격 가능 (보안 잠금)
+        if (nodeId === SPECIAL_CONDITIONS.TARGET_NODE) {
+            if (!capturedNodes.includes(SPECIAL_CONDITIONS.REQUIRED_NODE)) {
+                return 'locked'; // 물리적으로 연결되어 있어도 조건 미달 시 잠금
+            }
+        }
+        return 'attackable';
+    }
     return 'locked';
   };
 
-  const handleNodeClick = (node: any) => setSelectedNodeId(node.id);
+  const handleNodeClick = (node: any) => {
+    // 1. 관리자 엣지 편집 모드
+    if (isAdmin && isEdgeEditMode) {
+      if (selectedNodeId === null) {
+        setSelectedNodeId(node.id);
+      } else if (selectedNodeId === node.id) {
+        setSelectedNodeId(null);
+      } else {
+        const node1 = selectedNodeId;
+        const node2 = node.id;
+        
+        const existsIndex = edges.findIndex(e => 
+            (e[0] === node1 && e[1] === node2) || (e[0] === node2 && e[1] === node1)
+        );
+
+        if (existsIndex >= 0) {
+            setEdges(prev => prev.filter((_, idx) => idx !== existsIndex));
+        } else {
+            setEdges(prev => [...prev, [node1, node2]]);
+        }
+      }
+      return;
+    }
+
+    // 2. 일반 모드
+    setSelectedNodeId(node.id);
 
   const performMove = (targetId: number) => {
     const targetNode = nodes.find(n => n.id === targetId);
@@ -316,6 +368,11 @@ export default function SFCitySiege() {
         {/* Left Panel: Map */}
         <div className={`flex-1 relative bg-black overflow-hidden ${isAdmin && adminTab === 'database' ? 'hidden md:block md:w-1/3 opacity-50 pointer-events-none' : ''}`}>
           <div className="absolute inset-0 opacity-10 bg-[linear-gradient(#334155_1px,transparent_1px),linear-gradient(90deg,#334155_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+           {isEdgeEditMode && (
+              <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-yellow-600/90 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg border border-yellow-400 backdrop-blur-sm pointer-events-none">
+                  경로 편집 모드: 노드를 클릭하여 연결/해제
+              </div>
+          )}
           <div className="absolute inset-0 w-full h-full">
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               {EDGES.map(([startId, endId], idx) => {
@@ -361,6 +418,18 @@ export default function SFCitySiege() {
                    <div className="flex items-center gap-2 mb-3">
                      <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">{node.id}</div>
                      <input type="text" value={node.label} onChange={(e) => handleUpdateNode(node.id, 'label', e.target.value)} className="flex-1 bg-transparent border-b border-slate-700 text-white font-bold focus:outline-none"/>
+                   </div>
+                   {/* 좌표 수정 기능 추가 */}
+                   <div className="flex gap-4 mb-3 p-2 bg-slate-950 rounded border border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <Move size={12} className="text-slate-500"/>
+                        <span className="text-xs text-slate-500 font-mono">X:</span>
+                        <input type="number" value={node.x} onChange={(e) => handleUpdateNode(node.id, 'x', Number(e.target.value))} className="w-16 bg-slate-900 border border-slate-700 rounded px-1 text-xs text-blue-300"/>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-500 font-mono">Y:</span>
+                        <input type="number" value={node.y} onChange={(e) => handleUpdateNode(node.id, 'y', Number(e.target.value))} className="w-16 bg-slate-900 border border-slate-700 rounded px-1 text-xs text-blue-300"/>
+                      </div>
                    </div>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <textarea value={node.desc} onChange={(e) => handleUpdateNode(node.id, 'desc', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-300 h-16 resize-none"/>
@@ -426,6 +495,11 @@ export default function SFCitySiege() {
                         {getNodeStatus(selectedNode.id) === 'attackable' && <div className="col-span-2 py-3 bg-slate-900 border border-yellow-700/50 text-yellow-600 rounded flex justify-center gap-2 opacity-70"><Lock size={20}/> 작전 승인 대기</div>}
                         {getNodeStatus(selectedNode.id) === 'captured' && selectedNode.id !== currentLocation && <div className="col-span-2 py-3 bg-slate-900 border border-emerald-700/50 text-emerald-600 rounded flex justify-center gap-2 opacity-70"><Shield size={20}/> 확보된 지역</div>}
                         {getNodeStatus(selectedNode.id) === 'locked' && <div className="col-span-2 py-3 bg-slate-900 text-slate-600 rounded flex justify-center gap-2 border border-slate-800"><Lock size={16}/> 경로 미확보</div>}
+                           {selectedNode.id === SPECIAL_CONDITIONS.TARGET_NODE ? 
+                                (capturedNodes.includes(SPECIAL_CONDITIONS.REQUIRED_NODE) ? <><Lock size={16}/> 경로 미확보</> : <><Lock size={16}/> 조건 미달: 부대 '알파' 필요</>) : 
+                                <><Lock size={16}/> 경로 미확보</>
+                            }
+                        </div>}
                       </>
                     )}
                   </div>

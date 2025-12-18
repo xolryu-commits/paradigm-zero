@@ -24,34 +24,61 @@ const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('
 // --- 초기 데이터 정의 ---
 // --- 초기 데이터 정의 ---
 const GET_INITIAL_NODES = () => [
-  { id: 0, x: 50, y: 15, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
-  { id: 1, x: 35, y: 25, label: "제1 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북서쪽의 방벽 AI 서브 코어." },
-  { id: 2, x: 65, y: 25, label: "제2 자동 방벽 제어소", type: "normal", desc: "도시 외곽을 감싸는 북동쪽의 방벽 AI 서브 코어." },
-  { id: 17, x: 10, y: 25, label: "드론 관제실", type: "deadend", desc: "도시 외벽을 순행하는 경비 드론들을 관리한다." },
-  { id: 3, x: 20, y: 35, label: "산업 지구", type: "normal", desc: "자동화된 공장들이 여럿 위치한다." },
-  { id: 4, x: 50, y: 30, label: "신시 외곽 지대", type: "normal", desc: "중앙 도시에서 떨어진 시민 거주 구역." },
-  { id: 5, x: 80, y: 35, label: "폐기물 처리장", type: "normal", desc: "고장난 안드로이드와 도시 폐기물이 처리되는 곳." },
-  { id: 6, x: 10, y: 45, label: "군수용 물류터미널", type: "deadend", desc: "기계 부품 및 무기 보급을 처리한다." },
-  { id: 7, x: 30, y: 45, label: "중앙 에너지 발전소", type: "normal", desc: "신시에 전력 에너지를 공급하는 코어 시설." },
-  { id: 8, x: 70, y: 45, label: "데이터 센터", type: "normal", desc: "신시의 네트워크 서버와 데이터를 관리하는 시설." },
-  { id: 9, x: 90, y: 40, label: "방송 송출 센터", type: "deadend", desc: "미디어 통제 및 송출 시설." }, 
-  { id: 16, x: 15, y: 55, label: "지하 수로", type: "normal", desc: "악취가 나지만, 경비가 삼엄하지는 않다." },
-  { id: 10, x: 40, y: 55, label: "신시 경찰청", type: "normal", desc: "보안용 안드로이드가 다수 배치되어 있다." },
-  { id: 11, x: 60, y: 55, label: "시들종합병원", type: "normal", desc: "대형 의료 시설." },
-  { id: 18, x: 85, y: 50, label: "부대 ‘알파’", type: "normal", desc: "신시에서 처음으로 안드로이드로만 구성된 부대가 위치한다. 무력 충돌이 예상된다." },
-  { id: 12, x: 30, y: 65, label: "연구 단지", type: "normal", desc: "기술 개발 및 상용화가 이루어지는 곳." },
-  { id: 13, x: 70, y: 65, label: "상업 지구", type: "normal", desc: "문화 예술의 거리." },
-  { id: 19, x: 90, y: 70, label: "경경대학교", type: "normal", desc: "언덕 위에 지어졌다." },
-  { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "중앙 정부 앞의 거대한 광장." },
-  { id: 15, x: 50, y: 60, label: "중앙 정부", type: "goal", desc: "작전의 최종 목표지. 신시의 통제권을 탈취하라." },
+  // [초반부] 진입 및 외곽
+  { id: 0, x: 50, y: 10, label: "휘도 부대 집결 장소", type: "start", desc: "신시 북쪽 방어선 최외곽." },
+  { id: 1, x: 30, y: 20, label: "제1 자동 방벽 제어소", type: "normal", desc: "북서쪽 방벽 제어 시설." },
+  { id: 2, x: 70, y: 20, label: "제2 자동 방벽 제어소", type: "normal", desc: "북동쪽 방벽 제어 시설." },
+  { id: 17, x: 10, y: 20, label: "드론 관제실", type: "deadend", desc: "경비 드론 관리 시설." },
+  
+  // [중반부 진입] 자원 및 정보 확보
+  { id: 3, x: 20, y: 30, label: "산업 지구", type: "normal", desc: "자동화 공장 지대." },
+  { id: 4, x: 50, y: 25, label: "신시 외곽 지대", type: "normal", desc: "시민 거주 구역." },
+  { id: 5, x: 80, y: 30, label: "폐기물 처리장", type: "normal", desc: "폐기물 및 안드로이드 잔해 처리." },
+  { id: 6, x: 10, y: 40, label: "군수용 물류터미널", type: "deadend", desc: "무기 보급 시설." },
+  { id: 9, x: 90, y: 40, label: "방송 송출 센터", type: "deadend", desc: "미디어 통제 시설." },
+  { id: 16, x: 15, y: 50, label: "지하 수로", type: "normal", desc: "은밀한 침투 경로." },
+
+  // [중반부 핵심] 요충지 진입 전
+  { id: 7, x: 35, y: 40, label: "중앙 에너지 발전소", type: "normal", desc: "도시 전력 공급 시설." },
+  { id: 8, x: 65, y: 40, label: "데이터 센터", type: "normal", desc: "네트워크 및 데이터 관리." },
+
+  // [병목 지점 - 필수 경유]
+  { id: 18, x: 50, y: 50, label: "부대 ‘알파’", type: "normal", desc: "신시의 허리를 담당하는 최정예 안드로이드 부대. 중앙 정부로 가기 위해 반드시 돌파해야 한다." },
+
+  // [후반부] 심층부 구역 (다시 갈라짐)
+  { id: 10, x: 20, y: 65, label: "신시 경찰청", type: "normal", desc: "치안 유지 시설." },
+  { id: 11, x: 40, y: 65, label: "시들종합병원", type: "normal", desc: "의료 시설." },
+  { id: 12, x: 60, y: 65, label: "연구 단지", type: "normal", desc: "첨단 기술 연구소." },
+  { id: 13, x: 80, y: 65, label: "상업 지구", type: "normal", desc: "번화가." },
+  { id: 19, x: 90, y: 75, label: "경경대학교", type: "normal", desc: "언덕 위의 대학." },
+
+  // [최후반부] 결전
+  { id: 14, x: 50, y: 75, label: "광장", type: "normal", desc: "정부 청사 앞 거대 광장." },
+  { id: 15, x: 50, y: 90, label: "중앙 정부", type: "goal", desc: "최종 목표. 신시의 통제권을 탈취하라." },
 ];
 
 const INITIAL_EDGES = [
-  [0, 1], [0, 2], [1, 17], [1, 3], [1, 4], [2, 4], [2, 5],
-  [3, 6], [3, 7], [3, 16], [4, 7], [4, 8], [5, 8], [5, 9], [5, 18],
-  [7, 10], [7, 12], [8, 11], [8, 13], [10, 14],
-  [11, 14], [12, 14], [16, 12], [18, 11], [13, 14], [13, 19], 
-  [10, 15], [14, 15] // 원래 경로 복구 (경찰청/광장 -> 중앙정부)
+  // 초반 진입
+  [0, 1], [0, 2],
+  [1, 17], [1, 3], [1, 4],
+  [2, 4], [2, 5],
+  [3, 6], [3, 7], [3, 16],
+  [4, 7], [4, 8],
+  [5, 8], [5, 9],
+  [16, 7], // 수로 -> 발전소 연결 추가
+
+  // 병목 지점으로 집결 (모든 길은 '알파'로 통한다)
+  [7, 18], [8, 18],
+
+  // '알파' 돌파 후 다시 확산
+  [18, 10], [18, 11], [18, 12], [18, 13],
+
+  // 후반부 연결
+  [10, 14], [11, 14], [12, 14], [13, 14],
+  [13, 19], // 대학교는 상업지구에서 빠짐
+
+  // 최종 목적지
+  [14, 15]
 ];
 
 export default function SFCitySiege() {
@@ -110,7 +137,6 @@ export default function SFCitySiege() {
         if (saved.capturedNodes) setCapturedNodes(saved.capturedNodes);
         if (saved.day) setDay(saved.day);
         if (saved.logs) setLogs(saved.logs);
-        if (!isAuto) setLogs(prev => [...prev, `[SYSTEM] 서버 데이터 동기화 완료`]);
         if (!isAuto) alert("데이터 로드 완료!");
       }
     } catch (err: any) {
@@ -147,7 +173,6 @@ export default function SFCitySiege() {
 
       if (error) throw error;
 
-      setLogs(prev => [...prev, `[SYSTEM] 서버 저장 완료`]);
       alert("서버에 저장되었습니다.");
     } catch (err: any) {
       console.error("Save Error:", err);
@@ -157,21 +182,10 @@ export default function SFCitySiege() {
     }
   };
 
-  // --- 기존 로직 ---
-  const handleReboot = () => {
-    setNodes(GET_INITIAL_NODES());
-    setCurrentLocation(0);
-    setCapturedNodes([0]);
-    setDay(1);
-    setLogs(["Day 1: 북부 외곽 게이트 도착"]);
-  };
-
-  useEffect(() => {
+    useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  
-  // 수정됨: EDGES 대신 edges 상태 변수 사용
   const isConnected = (from: number, to: number) => edges.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from));
 
   // 상태 확인 함수 (단순화: 필수 조건 제거)
@@ -199,17 +213,14 @@ export default function SFCitySiege() {
         const node1 = selectedNodeId;
         const node2 = node.id;
         
-        // 수정됨: EDGES 대신 edges 상태 변수 사용
         const existsIndex = edges.findIndex(e => 
             (e[0] === node1 && e[1] === node2) || (e[0] === node2 && e[1] === node1)
         );
 
         if (existsIndex >= 0) {
             setEdges(prev => prev.filter((_, idx) => idx !== existsIndex));
-            setLogs(prev => [...prev, `[ADMIN] 연결 삭제: ${node1} - ${node2}`]);
         } else {
             setEdges(prev => [...prev, [node1, node2]]);
-            setLogs(prev => [...prev, `[ADMIN] 연결 생성: ${node1} - ${node2}`]);
         }
       }
       return;
@@ -376,7 +387,6 @@ export default function SFCitySiege() {
 
           <div className="absolute inset-0 w-full h-full">
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              {/* 수정됨: EDGES 대신 edges 상태 변수 사용 */}
               {edges.map(([startId, endId], idx) => {
                 const start = nodes.find(n => n.id === startId);
                 const end = nodes.find(n => n.id === endId);

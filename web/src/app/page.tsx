@@ -12,7 +12,7 @@ import { Shield, Target, MapPin, Crosshair, AlertTriangle, Lock, Navigation, Ter
 // ==============================================================================
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const ADMIN_KEY_ENV = process.env.NEXT_PUBLIC_ADMIN_KEY || "1217"; // 설정 없으면 기본값 1217
+const ADMIN_KEY_ENV = process.env.ADMIN_KEY || ""; 
 // ==============================================================================
 
 // Supabase 클라이언트 생성
